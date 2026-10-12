@@ -1,20 +1,77 @@
-<!DOCTYPE html>
-<html>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"
-<title> Сова - Киноман </title>
+<!doctype html>
+<html lang="ru">
 <head>
-        Авторизация
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101018">
+  <title>owl.movielover — твоя киновселенная</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-        <form action="/submit" method="post">
-  <label for="name">Имя:</label>
-  <input type="text" id="name" name="name" placeholder="Ваше имя" required>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="owl.movielover — главная">
+      <span class="brand-mark">✳</span><span>owl<span class="brand-dot">.</span>movielover</span>
+    </a>
+    <button class="register-btn" id="registerBtn"><span class="user-icon">↗</span> Регистрация, вась.</button>
+  </header>
 
-  <label for="email">Email:</label>
-  <input type="email" id="email" name="email" placeholder="example@mail.com" required>
+  <main class="hero">
+    <h1>Что будем смотреть<span class="accent">?</span></h1>
+    <p class="subtitle">Расскажи Сове о своём настроении, вась.</p>
 
-  <button type="submit">Отправить</button>
-</form>
+    <div class="owl-stage">
+      <div class="owl-frame">
+        <img src="assets/сова.png" alt="Сова — твой личный кинокритик" class="owl-image">
+      </div>
+    </div>
+
+    <div class="chat-card" id="chatCard">
+      <form id="chatForm" class="chat-form">
+        <label class="visually-hidden" for="messageInput">Напиши Сове, какой фильм хочется посмотреть, вась.</label>
+        <input id="messageInput" type="text" placeholder="Напиши, какое у тебя сегодня настроение..." autocomplete="off">
+        <button type="submit" aria-label="Отправить сообщение" class="send-btn"><span>➤</span></button>
+      </form>
+      <div class="quick-prompts">
+        <button type="button" class="prompt-chip" data-prompt="Хочу что-нибудь смешное">Что-нибудь смешное</button>
+        <button type="button" class="prompt-chip" data-prompt="Хочу загадочный фильм">Что-нибудь загадочное</button>
+        <button type="button" class="prompt-chip" data-prompt="Удиви меня фильмом">Удиви меня</button>
+      </div>
+      <div class="chat-messages" id="chatMessages" aria-live="polite"></div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Основная навигация">
+    <button class="nav-item active" data-page="Главная" aria-label="Главная" title="Главная">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Главная</span>
+    </button>
+    <button class="nav-item" data-page="Образы" aria-label="Образы" title="Образы">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18l-1.5 11h-15z"/><path d="M8 7a4 4 0 0 1 8 0M3 11h18M8 11v2m8-2v2"/></svg><span>Образы</span>
+    </button>
+    <button class="nav-item" data-page="Игры" aria-label="Игры" title="Игры">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 8h11a4.5 4.5 0 0 1 4.3 5.8l-1.2 3.8a2 2 0 0 1-3.2 1l-3-2.4H9.6l-3 2.4a2 2 0 0 1-3.2-1l-1.2-3.8A4.5 4.5 0 0 1 6.5 8Z"/><path d="M7 11v4m-2-2h4m7-1h.01M18 14h.01"/></svg><span>Игры</span>
+    </button>
+    <button class="nav-item" data-page="Еда" aria-label="Еда" title="Еда">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v7m-3-7v4a3 3 0 0 0 6 0V3M7 10v11M16 3c-2 2-3 5-3 8h5V3m-2 8v10"/></svg><span>Еда</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Закрыть">×</button>
+      <div class="modal-icon">✳</div>
+      <p class="eyebrow modal-eyebrow">СКОРО ЗДЕСЬ БУДЕТ УЮТНО</p>
+      <h2 id="modalTitle">Знакомство с Совою</h2>
+      <p>Регистрация пока не подключена — мы ведь создаём только внешний вид, вась.</p>
+      <button class="modal-primary" id="modalOk">Понятно, погнали</button>
+    </section>
+  </div>
+  <script src="script.js"></script>
 </body>
 </html>
