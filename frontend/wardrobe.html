@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101018">
+  <title>Гардероб совы — owl.movielover</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="wardrobe.css">
+</head>
+<body>
+  <a class="back-link" href="index.html">← На главную</a>
+  <main class="wardrobe-window">
+    <h1>Гардероб совы</h1>
+    <p class="subtitle">Выбери цвет для своей совы</p>
+    <div class="owl-preview">
+      <img id="owlPreview" src="assets/sova_beli.png" alt="Сова выбранного цвета">
+    </div>
+    <div class="color-grid" aria-label="Цвет совы">
+      <button class="color-option" data-image="sova_beli.png" data-color="#f1eee8"><span class="swatch" style="--swatch:#f1eee8"></span><span>Белый</span></button>
+      <button class="color-option" data-image="sova_biryo.png" data-color="#30d5c8"><span class="swatch" style="--swatch:#30d5c8"></span><span>Бирюзовый</span></button>
+      <button class="color-option" data-image="sova_blue.png" data-color="#7da9df"><span class="swatch" style="--swatch:#7da9df"></span><span>Голубой</span></button>
+      <button class="color-option" data-image="sova_chb.png" data-color="#33333b"><span class="swatch" style="--swatch:#33333b"></span><span>Чёрно-белый</span></button>
+      <button class="color-option" data-image="sova_fiol.png" data-color="#a88bd4"><span class="swatch" style="--swatch:#a88bd4"></span><span>Фиолетовый</span></button>
+      <button class="color-option" data-image="sova_gray.png" data-color="#9699a2"><span class="swatch" style="--swatch:#9699a2"></span><span>Серый</span></button>
+      <button class="color-option" data-image="sova_green.png" data-color="#79b88b"><span class="swatch" style="--swatch:#79b88b"></span><span>Зелёный</span></button>
+      <button class="color-option" data-image="sova_oran.png" data-color="#e9a15e"><span class="swatch" style="--swatch:#e9a15e"></span><span>Оранжевый</span></button>
+      <button class="color-option" data-image="sova_roz.png" data-color="#ee9bc5"><span class="swatch" style="--swatch:#ee9bc5"></span><span>Розовый</span></button>
+      <button class="color-option" data-image="sova_yel.png" data-color="#f0d36c"><span class="swatch" style="--swatch:#f0d36c"></span><span>Жёлтый</span></button>
+    </div>
+  </main>
+  <script src="wardrobe.js"></script>
+</body>
+</html>

@@ -5,6 +5,11 @@ const toast = document.querySelector("#toast");
 const modalBackdrop = document.querySelector("#modalBackdrop");
 
 let toastTimer;
+
+// Сохраняем выбранный цвет совы между страницами.
+const savedOwlImage = localStorage.getItem("owlColorImage");
+const mainOwlImage = document.querySelector(".owl-image");
+if (savedOwlImage && mainOwlImage) mainOwlImage.src = savedOwlImage;
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
@@ -82,6 +87,10 @@ document.querySelectorAll(".nav-item").forEach((button) => {
       document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    if (page === "Образы") {
+      window.location.href = "wardrobe.html";
       return;
     }
     showToast(`Раздел «${page}» появится в следующих версиях сайта, вась!`);
