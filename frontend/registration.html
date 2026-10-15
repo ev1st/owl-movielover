@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация — Owl Movie Lover</title>
+    <link rel="stylesheet" href="registration.css">
+</head>
+<body>
+    <main class="page">
+        <a class="back-link" href="index.html">← На главную</a>
+
+        <section class="register-card">
+            <div class="owl-mark">🦉</div>
+            <p class="eyebrow">OWL MOVIE LOVER</p>
+
+            <h1>Создать аккаунт</h1>
+            <p class="subtitle">
+                Сохраняй любимые фильмы и находи новые.
+            </p>
+
+            <form class="register-form" action="#" method="post">
+                <div class="field">
+                    <label for="username">Имя пользователя</label>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        placeholder="Например, moonfilm"
+                        autocomplete="username"
+                        minlength="3"
+                        maxlength="30"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="email">Электронная почта</label>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="name@example.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="password">Пароль</label>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Придумай пароль"
+                        autocomplete="new-password"
+                        minlength="8"
+                        pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}"
+                        title="Минимум 8 символов, заглавная и строчная буквы и цифра"
+                        aria-describedby="password-rules"
+                        required
+                    >
+                </div>
+
+                <div class="password-rules" id="password-rules">
+                    <p class="rules-title">Пароль должен содержать:</p>
+                    <ul>
+                        <li>не менее 8 символов</li>
+                        <li>минимум одну заглавную букву</li>
+                        <li>минимум одну строчную букву</li>
+                        <li>минимум одну цифру</li>
+                    </ul>
+                </div>
+
+                <div class="field">
+                    <label for="confirm-password">
+                        Подтверждение пароля
+                    </label>
+                    <input
+                        id="confirm-password"
+                        name="confirm_password"
+                        type="password"
+                        placeholder="Повтори пароль"
+                        autocomplete="new-password"
+                        required
+                    >
+                </div>
+
+                <button class="submit-button" type="submit">
+                    Создать аккаунт <span>→</span>
+                </button>
+            </form>
+
+            <p class="login-note">
+                Уже есть аккаунт?
+                <a href="login.html">Войти</a>
+            </p>
+        </section>
+
+        <p class="page-note">
+            Твой следующий любимый фильм где-то рядом.
+        </p>
+    </main>
+</body>
+</html>

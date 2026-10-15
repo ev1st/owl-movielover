@@ -412,4 +412,19 @@ h1 {
     min-width: 57px; 
     padding: 8px 9px 7px; }
 }
+
+a.register-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+a.register-btn,
+a.register-btn:visited,
+a.register-btn:hover,
+a.register-btn:active {
+    color: #fff;
+}
+
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }

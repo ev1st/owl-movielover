@@ -63,10 +63,6 @@ document.querySelectorAll(".prompt-chip").forEach((button) => {
   });
 });
 
-document.querySelector("#registerBtn").addEventListener("click", () => {
-  modalBackdrop.classList.add("open");
-  modalBackdrop.setAttribute("aria-hidden", "false");
-});
 function closeModal() {
   modalBackdrop.classList.remove("open");
   modalBackdrop.setAttribute("aria-hidden", "true");

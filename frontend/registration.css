@@ -1,0 +1,241 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #111214;
+    --panel: #191a1e;
+    --panel-border: #2b2c31;
+    --text: #f1eee9;
+    --muted: #a5a2a0;
+    --accent: #d6a0b6;
+    --accent-hover: #e4b5c8;
+    --input: #121316;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    background:
+        radial-gradient(
+            ellipse at 50% 0%,
+            rgba(160, 104, 132, 0.12),
+            transparent 42%
+        ),
+        var(--bg);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+
+.page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 28px 20px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.back-link {
+    align-self: flex-start;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: var(--text);
+}
+
+.register-card {
+    width: min(100%, 430px);
+    margin: auto 0;
+    padding: 30px 34px 26px;
+    background: rgba(25, 26, 30, 0.96);
+    border: 1px solid var(--panel-border);
+    border-radius: 18px;
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.24);
+}
+
+.owl-mark {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 15px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #493541;
+    border-radius: 16px;
+    background: #292027;
+    font-size: 27px;
+}
+
+.eyebrow {
+    margin: 0 0 8px;
+    color: var(--accent);
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.4px;
+}
+
+h1 {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(25px, 5vw, 30px);
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -0.7px;
+}
+
+.subtitle {
+    margin: 10px 0 25px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field label {
+    color: #e5e0df;
+    font-size: 13px;
+    font-weight: 550;
+}
+
+.field input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 14px;
+    color: var(--text);
+    background: var(--input);
+    border: 1px solid #34353a;
+    border-radius: 9px;
+    outline: none;
+    font: inherit;
+    font-size: 13px;
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.field input::placeholder {
+    color: #737176;
+}
+
+/* Подсветка поля при нажатии */
+.field input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(214, 160, 182, 0.1);
+}
+
+/* Подсветка поля при некорректном вводе */
+.field input:invalid:not(:placeholder-shown) {
+    border-color: #a66b7b;
+}
+
+.password-rules {
+    margin-top: -7px;
+    padding: 12px 14px;
+    background: #151619;
+    border: 1px solid #2c2d32;
+    border-radius: 9px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+.rules-title {
+    margin: 0 0 5px;
+    color: #d9d3d3;
+    font-size: 12px;
+}
+
+.password-rules ul {
+    margin: 0;
+    padding-left: 17px;
+}
+
+.password-rules li + li {
+    margin-top: 2px;
+}
+
+.submit-button {
+    width: 100%;
+    min-height: 47px;
+    margin-top: 2px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: #21191d;
+    background: var(--accent);
+    border: 0;
+    border-radius: 9px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease,
+                transform 0.2s ease;
+}
+
+.submit-button:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.submit-button:active {
+    transform: translateY(0);
+}
+
+.submit-button span {
+    font-size: 18px;
+}
+
+.login-note {
+    margin: 21px 0 0;
+    color: var(--muted);
+    text-align: center;
+    font-size: 13px;
+}
+
+.login-note a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-note a:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+.page-note {
+    margin: 20px 0 0;
+    color: #77747a;
+    font-size: 11px;
+    text-align: center;
+}
+
+@media (max-width: 480px) {
+    .page {
+        padding: 20px 14px;
+    }
+
+    .register-card {
+        padding: 26px 21px 23px;
+        border-radius: 15px;
+    }
+}
