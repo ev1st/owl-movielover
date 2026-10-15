@@ -6,7 +6,7 @@ const modalBackdrop = document.querySelector("#modalBackdrop");
 
 let toastTimer;
 
-// Сохраняем выбранный цвет совы между страницами.
+
 const savedOwlImage = localStorage.getItem("owlColorImage");
 const mainOwlImage = document.querySelector(".owl-image");
 if (savedOwlImage && mainOwlImage) mainOwlImage.src = savedOwlImage;
@@ -28,18 +28,18 @@ function addMessage(text, type) {
 function owlReply(text) {
   const normalized = text.toLowerCase();
   if (/ужас|страш|хоррор|жутк/.test(normalized)) {
-    return "Ууу, вась, выбираем что-то атмосферное! В полноценной версии я уточню, насколько страшно тебе, вась, хочется, и подберу фильмы.";
+    return "Скоро все будет, васек.";
   }
   if (/смеш|комед|весел|поржать/.test(normalized)) {
-    return "Записала: сегодня васе нужен лёгкий и смешной фильм!  В полноценной версии подберу комедии под твой вайб, вась.";
+    return "обожди, вась.";
   }
   if (/груст|плак|драма|поплакать/.test(normalized)) {
-    return "Поняла настроение, вась. Иногда хорошая драма — именно то, что нужно. Когда подключим рекомендатель, я смогу подобрать варианты по твоим предпочтениям , вась.";
+    return "Не грусти, вась, скоро все будет.";
   }
   if (/загад|детектив|триллер|тайн/.test(normalized)) {
-    return "О, люблю кинозагадки, вась! Для тебя просится что-то с тайнами и неожиданными поворотами. В рабочей версии я предложу подборку, вась.";
+    return "Скоро будет, вась.";
   }
-  return "Ууу, я тебя услышала, вась! Это демо внешнего вида: пока я не подключена к Python, поэтому не могу честно выдать настоящие рекомендации, вась.";
+  return "Ууу, доработаем и все будет, вась.";
 }
 
 chatForm.addEventListener("submit", (event) => {

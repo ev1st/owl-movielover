@@ -111,9 +111,9 @@ h1 {
   line-height: 1.7; }
 .owl-stage { 
   position: relative; 
-  height: clamp(370px, 48vw, 510px); 
+  height: clamp(260px, 34vw, 360px); 
   width: 100%; 
-  max-width: 560px; 
+  max-width: 420px; 
   margin: 0 auto; 
   display: grid; 
   place-items: center; }
@@ -121,7 +121,7 @@ h1 {
   display: none; }
 .owl-frame { 
   position: relative; 
-  width: min(100%, 430px); 
+  width: min(100%, 250px); 
   height: 100%; 
   display: grid; 
   place-items: center; 
@@ -134,7 +134,7 @@ h1 {
   object-fit: contain; }
 .chat-card { 
   max-width: 580px; 
-  margin: -2px auto 0; 
+  margin: 16px auto 0; 
   padding: 13px; 
   border-radius: 17px; 
   border: 1px solid rgba(224,212,255,.13); 
