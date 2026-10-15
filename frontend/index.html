@@ -31,9 +31,42 @@
     </div>
 
     <div class="chat-card" id="chatCard">
+      <details class="survey-panel">
+        <summary>Подобрать по анкете</summary>
+        <form id="surveyForm" class="survey-form">
+          <label for="genreSelect">Жанр</label>
+          <select id="genreSelect"><option value="">Любой жанр</option></select>
+
+          <label for="atmosphereSelect">Вайб</label>
+          <select id="atmosphereSelect"><option value="">Любой вайб</option></select>
+
+          <label for="countrySelect">Страна</label>
+          <select id="countrySelect"><option value="">Любая страна</option></select>
+          <p id="countryNote" class="survey-note" hidden></p>
+
+          <div class="year-fields">
+            <div>
+              <label for="yearFrom">Год от</label>
+              <input id="yearFrom" type="number" min="1888" max="2100">
+            </div>
+            <div>
+              <label for="yearTo">Год до</label>
+              <input id="yearTo" type="number" min="1888" max="2100">
+            </div>
+          </div>
+
+          <label for="minRating">Минимальный IMDb-рейтинг</label>
+          <input id="minRating" type="number" min="0" max="10" step="0.1" placeholder="Например, 7.5">
+
+          <label for="actorInput">Актёр (необязательно)</label>
+          <input id="actorInput" type="text" maxlength="150" placeholder="Имя из каталога">
+
+          <button type="submit" class="survey-submit">Подобрать фильмы</button>
+        </form>
+      </details>
       <form id="chatForm" class="chat-form">
         <label class="visually-hidden" for="messageInput">Напиши Сове, какой фильм хочется посмотреть, вась.</label>
-        <input id="messageInput" type="text" placeholder="Напиши, какое у тебя сегодня настроение..." autocomplete="off">
+        <input id="messageInput" type="text" maxlength="1000" placeholder="Опиши фильм: жанр, вайб, год или рейтинг..." autocomplete="off">
         <button type="submit" aria-label="Отправить сообщение" class="send-btn"><span>➤</span></button>
       </form>
       <div class="quick-prompts">

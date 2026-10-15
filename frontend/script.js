@@ -3,6 +3,11 @@ const messageInput = document.querySelector("#messageInput");
 const chatMessages = document.querySelector("#chatMessages");
 const toast = document.querySelector("#toast");
 const modalBackdrop = document.querySelector("#modalBackdrop");
+const surveyForm = document.querySelector("#surveyForm");
+const genreSelect = document.querySelector("#genreSelect");
+const atmosphereSelect = document.querySelector("#atmosphereSelect");
+const countrySelect = document.querySelector("#countrySelect");
+const countryNote = document.querySelector("#countryNote");
 
 let toastTimer;
 
@@ -25,24 +30,100 @@ function addMessage(text, type) {
   chatMessages.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
-function owlReply(text) {
-  const normalized = text.toLowerCase();
-  if (/ужас|страш|хоррор|жутк/.test(normalized)) {
-    return "Скоро все будет, васек.";
+async function apiRequest(path, options = {}) {
+  const response = await fetch(path, {
+    ...options,
+    headers: {
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...options.headers,
+    },
+  });
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.detail || "Не удалось подобрать фильмы.");
   }
-  if (/смеш|комед|весел|поржать/.test(normalized)) {
-    return "обожди, вась.";
-  }
-  if (/груст|плак|драма|поплакать/.test(normalized)) {
-    return "Не грусти, вась, скоро все будет.";
-  }
-  if (/загад|детектив|триллер|тайн/.test(normalized)) {
-    return "Скоро будет, вась.";
-  }
-  return "Ууу, доработаем и все будет, вась.";
+  return payload;
 }
 
-chatForm.addEventListener("submit", (event) => {
+function addMovieCard(movie) {
+  const card = document.createElement("article");
+  card.className = "movie-result";
+
+  const title = document.createElement("h3");
+  title.textContent = `${movie.movie_name}${movie.year ? ` (${movie.year})` : ""}`;
+  card.appendChild(title);
+
+  const meta = document.createElement("p");
+  meta.className = "movie-meta";
+  meta.textContent = `IMDb ${movie.rating.toFixed(1)} · ${movie.genres.join(", ") || "Жанр не указан"}`;
+  card.appendChild(meta);
+
+  if (movie.description) {
+    const description = document.createElement("p");
+    description.textContent = movie.description;
+    card.appendChild(description);
+  }
+
+  const explanation = document.createElement("p");
+  explanation.className = "movie-explanation";
+  explanation.textContent = movie.explanation;
+  card.appendChild(explanation);
+  chatMessages.appendChild(card);
+}
+
+function showRecommendations(payload) {
+  chatMessages.replaceChildren();
+  addMessage(`Нашла ${payload.recommendations.length} фильмов, вась:`, "owl");
+  for (const movie of payload.recommendations) addMovieCard(movie);
+}
+
+async function loadMovieOptions() {
+  try {
+    const options = await apiRequest("/api/options");
+    for (const genre of options.genres) {
+      const option = document.createElement("option");
+      option.value = genre;
+      option.textContent = genre;
+      genreSelect.appendChild(option);
+    }
+    for (const atmosphere of options.atmospheres) {
+      const option = document.createElement("option");
+      option.value = atmosphere;
+      option.textContent = atmosphere;
+      atmosphereSelect.appendChild(option);
+    }
+    for (const country of options.countries) {
+      const option = document.createElement("option");
+      option.value = country;
+      option.textContent = country;
+      countrySelect.appendChild(option);
+    }
+    if (!options.has_country_data) {
+      countrySelect.disabled = true;
+      countryNote.hidden = false;
+      countryNote.textContent = "В CSV пока нет данных о странах производства.";
+    }
+    document.querySelector("#yearFrom").placeholder = options.year_min || "";
+    document.querySelector("#yearTo").placeholder = options.year_max || "";
+  } catch (error) {
+    countryNote.hidden = false;
+    countryNote.textContent = `Не удалось загрузить варианты анкеты: ${error.message}`;
+  }
+}
+
+async function requestRecommendations(data) {
+  try {
+    const payload = await apiRequest("/api/recommendations", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    showRecommendations(payload);
+  } catch (error) {
+    addMessage(error.message, "owl");
+  }
+}
+
+chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const text = messageInput.value.trim();
   if (!text) {
@@ -52,8 +133,35 @@ chatForm.addEventListener("submit", (event) => {
   }
   addMessage(text, "user");
   messageInput.value = "";
-  addMessage(owlReply(text), "owl");
+  const submitButton = chatForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  try {
+    await requestRecommendations({ mode: "free_text", message: text });
+  } finally {
+    submitButton.disabled = false;
+  }
   messageInput.focus();
+});
+
+surveyForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  await requestRecommendations({
+    mode: "survey",
+    genre: genreSelect.value || null,
+    atmosphere: atmosphereSelect.value || null,
+    country: countrySelect.disabled ? null : countrySelect.value || null,
+    actor: document.querySelector("#actorInput").value.trim() || null,
+    year_from: document.querySelector("#yearFrom").value
+      ? Number(document.querySelector("#yearFrom").value)
+      : null,
+    year_to: document.querySelector("#yearTo").value
+      ? Number(document.querySelector("#yearTo").value)
+      : null,
+    min_rating: document.querySelector("#minRating").value
+      ? Number(document.querySelector("#minRating").value)
+      : null,
+    limit: 20,
+  });
 });
 
 document.querySelectorAll(".prompt-chip").forEach((button) => {
@@ -92,3 +200,5 @@ document.querySelectorAll(".nav-item").forEach((button) => {
     showToast(`Раздел «${page}» появится в следующих версиях сайта, вась!`);
   });
 });
+
+loadMovieOptions();

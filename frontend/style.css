@@ -236,6 +236,74 @@ h1 {
   color: #d5cee5; 
   background: rgba(255,255,255,.045); 
   border: 1px solid rgba(224,212,255,.09); }
+.survey-panel {
+  margin-bottom: 12px;
+  border: 1px solid rgba(224,212,255,.12);
+  border-radius: 12px;
+  background: rgba(10,10,18,.35); }
+.survey-panel summary {
+  padding: 12px;
+  color: #d5cee5;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer; }
+.survey-form {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 12px; }
+.survey-form label {
+  color: #c8bfd9;
+  font-size: 11px;
+  text-align: left; }
+.survey-form select, .survey-form input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(224,212,255,.17);
+  border-radius: 9px;
+  padding: 9px 10px;
+  background: #11101b;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px; }
+.survey-form select:disabled {
+  opacity: .55;
+  cursor: not-allowed; }
+.survey-note {
+  margin: 0;
+  color: #aaa3bc;
+  font-size: 11px;
+  text-align: left; }
+.year-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px; }
+.year-fields div {
+  display: grid;
+  gap: 8px; }
+.survey-submit {
+  margin-top: 4px;
+  border: 1px solid rgba(224,212,255,.18);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: var(--text);
+  background: linear-gradient(135deg, rgba(237,141,187,.2), rgba(183,160,255,.19)); }
+.movie-result {
+  padding: 13px;
+  border: 1px solid rgba(224,212,255,.12);
+  border-radius: 12px;
+  color: #d5cee5;
+  background: rgba(255,255,255,.035);
+  font-size: 12px;
+  line-height: 1.55; }
+.movie-result h3 {
+  margin: 0 0 4px;
+  color: var(--text);
+  font-family: Manrope, sans-serif;
+  font-size: 14px; }
+.movie-result p {
+  margin: 6px 0 0; }
+.movie-meta, .movie-explanation {
+  color: #c8b9e8; }
 .tiny-note { 
   display: none; }
 .tiny-note span { 
