@@ -6,15 +6,21 @@ const modalBackdrop = document.querySelector("#modalBackdrop");
 const surveyForm = document.querySelector("#surveyForm");
 const genreSelect = document.querySelector("#genreSelect");
 const atmosphereSelect = document.querySelector("#atmosphereSelect");
-const countrySelect = document.querySelector("#countrySelect");
-const countryNote = document.querySelector("#countryNote");
 
 let toastTimer;
 
 
-const savedOwlImage = localStorage.getItem("owlColorImage");
 const mainOwlImage = document.querySelector(".owl-image");
-if (savedOwlImage && mainOwlImage) mainOwlImage.src = savedOwlImage;
+const defaultOwlImage = mainOwlImage ? mainOwlImage.getAttribute("src") : null;
+const savedOwlImage = localStorage.getItem("owlColorImage");
+if (savedOwlImage && mainOwlImage) {
+  mainOwlImage.onerror = () => {
+    mainOwlImage.onerror = null;
+    mainOwlImage.src = defaultOwlImage || "assets/sova_roz.png";
+    localStorage.removeItem("owlColorImage");
+  };
+  mainOwlImage.src = savedOwlImage;
+}
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
@@ -55,7 +61,18 @@ function addMovieCard(movie) {
 
   const meta = document.createElement("p");
   meta.className = "movie-meta";
-  meta.textContent = `IMDb ${movie.rating.toFixed(1)} · ${movie.genres.join(", ") || "Жанр не указан"}`;
+  const genreNames = {
+    action: "Боевик", adventure: "Приключения", animation: "Мультфильм",
+    comedy: "Комедия", crime: "Криминал", documentary: "Документальный",
+    drama: "Драма", family: "Семейный", fantasy: "Фэнтези", history: "Исторический",
+    horror: "Ужасы", music: "Музыкальный", mystery: "Детектив", romance: "Мелодрама",
+    "sci-fi": "Фантастика", thriller: "Триллер", war: "Военный", western: "Вестерн",
+    biography: "Биография", sport: "Спортивный", short: "Короткометражный",
+    musical: "Мюзикл", "film-noir": "Нуар"
+  };
+  const russianGenres = (movie.genres || []).map((genre) => genreNames[genre.toLowerCase()] || genre);
+  const ratingText = Number(movie.rating || 0) > 0 ? `IMDb ${Number(movie.rating).toFixed(1)}` : "IMDb не указан";
+  meta.textContent = `${ratingText} · ${russianGenres.join(", ") || "Жанр не указан"}`;
   card.appendChild(meta);
 
   if (movie.description) {
@@ -80,10 +97,19 @@ function showRecommendations(payload) {
 async function loadMovieOptions() {
   try {
     const options = await apiRequest("/api/options");
+    const genreNames = {
+      action: "Боевик", adventure: "Приключения", animation: "Мультфильм",
+      comedy: "Комедия", crime: "Криминал", documentary: "Документальный",
+      drama: "Драма", family: "Семейный", fantasy: "Фэнтези", history: "Исторический",
+      horror: "Ужасы", music: "Музыкальный", mystery: "Детектив", romance: "Мелодрама",
+      "sci-fi": "Фантастика", thriller: "Триллер", war: "Военный", western: "Вестерн",
+      biography: "Биография", sport: "Спортивный", short: "Короткометражный",
+      musical: "Мюзикл", "film-noir": "Нуар"
+    };
     for (const genre of options.genres) {
       const option = document.createElement("option");
       option.value = genre;
-      option.textContent = genre;
+      option.textContent = genreNames[genre.toLowerCase()] || genre;
       genreSelect.appendChild(option);
     }
     for (const atmosphere of options.atmospheres) {
@@ -92,22 +118,10 @@ async function loadMovieOptions() {
       option.textContent = atmosphere;
       atmosphereSelect.appendChild(option);
     }
-    for (const country of options.countries) {
-      const option = document.createElement("option");
-      option.value = country;
-      option.textContent = country;
-      countrySelect.appendChild(option);
-    }
-    if (!options.has_country_data) {
-      countrySelect.disabled = true;
-      countryNote.hidden = false;
-      countryNote.textContent = "В CSV пока нет данных о странах производства.";
-    }
     document.querySelector("#yearFrom").placeholder = options.year_min || "";
     document.querySelector("#yearTo").placeholder = options.year_max || "";
   } catch (error) {
-    countryNote.hidden = false;
-    countryNote.textContent = `Не удалось загрузить варианты анкеты: ${error.message}`;
+    showToast(`Не удалось загрузить варианты анкеты: ${error.message}`);
   }
 }
 
@@ -145,11 +159,15 @@ chatForm.addEventListener("submit", async (event) => {
 
 surveyForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  await requestRecommendations({
+  const submitButton = surveyForm.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  submitButton.textContent = "Подбираю фильмы…";
+  try {
+    await requestRecommendations({
     mode: "survey",
     genre: genreSelect.value || null,
     atmosphere: atmosphereSelect.value || null,
-    country: countrySelect.disabled ? null : countrySelect.value || null,
+    country: null,
     actor: document.querySelector("#actorInput").value.trim() || null,
     year_from: document.querySelector("#yearFrom").value
       ? Number(document.querySelector("#yearFrom").value)
@@ -161,7 +179,11 @@ surveyForm.addEventListener("submit", async (event) => {
       ? Number(document.querySelector("#minRating").value)
       : null,
     limit: 20,
-  });
+    });
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Подобрать фильмы";
+  }
 });
 
 document.querySelectorAll(".prompt-chip").forEach((button) => {

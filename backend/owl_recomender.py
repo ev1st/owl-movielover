@@ -6,11 +6,15 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MultiLabelBinarizer
 
-DATA_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "database"
-    / "movies_for_training.csv"
-)
+import os
+
+
+def _project_root() -> Path:
+    return Path(os.getcwd())
+
+
+PROJECT_ROOT = _project_root()
+DATA_PATH = PROJECT_ROOT / "database" / "movies_for_training.csv"
 COUNTRY_COLUMNS = ("country_str", "countries_str", "country", "countries")
 RESULT_COLUMNS = [
     "movie_name",

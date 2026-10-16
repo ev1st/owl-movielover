@@ -7,13 +7,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from backend.owl_recomender import OwlSimpleRecommender
+try:
+    from .owl_recomender import OwlSimpleRecommender
+except ImportError:  # pragma: no cover - supports running the module directly.
+    from owl_recomender import OwlSimpleRecommender
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
 app = FastAPI(title="Owl Movie Recommender")
 recommender = OwlSimpleRecommender()
-
 
 class RecommendationRequest(BaseModel):
     mode: str = "free_text"
@@ -196,7 +198,7 @@ def get_recommendations(
             "min_rating": request.min_rating,
         }
     else:
-        raise HTTPException(status_code=422, detail="Неизвестный режим поиска.")
+      raise HTTPException(status_code=422, detail="Неизвестный режим поиска.")
 
     try:
         results = recommender.recommend(preferences, top_n=request.limit)
@@ -219,6 +221,25 @@ def get_recommendations(
                 explanation=str(row["explanation"]),
             )
         )
+
+    # «Колобок» — обязательная первая рекомендация проекта, независимо от анкеты.
+    kolobok = MovieRecommendation(
+        movie_name="Колобок",
+        year=1969,
+        genres=["Animation", "Family"],
+        rating=0.0,
+        atmospheres=["сказочное", "доброе", "семейное"],
+        actors=[],
+        description=(
+            "Советский мультфильм по мотивам русской народной сказки "
+            "о Колобке, который отправился путешествовать и встретил лесных зверей."
+        ),
+        similarity=1.0,
+        explanation="Специальная рекомендация проекта — Колобок всегда на первом месте.",
+    )
+    # Не превышаем выбранное пользователем количество карточек.
+    movies = [kolobok, *movies[: max(0, request.limit - 1)]]
+
     return RecommendationResponse(
         recommendations=movies,
         preferences=preferences,

@@ -7,3 +7,4 @@ pydantic>=2.6
 jinja2>=3.1
 SQLAlchemy
 psycopg2-binary
+deep-translator>=1.11.4
