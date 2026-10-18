@@ -8,12 +8,13 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from backend.auth import router as auth_router
+from backend.auth import get_current_user, router as auth_router
 from backend.db import Base, engine
+from backend.models import ensure_role_column
 from backend.owl_recomender import OwlSimpleRecommender
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -22,6 +23,7 @@ CACHE_PATH = Path(__file__).resolve().parent / "translation_cache.json"
 app = FastAPI(title="Owl Movie Recommender")
 app.include_router(auth_router)
 Base.metadata.create_all(engine)  # создаёт таблицу users, если её ещё нет
+ensure_role_column()  # добавляет колонку role в старую таблицу users
 recommender = OwlSimpleRecommender()
 
 # ---------- TMDB: официальные русские названия и описания ----------
@@ -254,12 +256,19 @@ def _infer_preferences(message: str) -> dict[str, object]:
     return preferences
 
 
-@app.get("/api/options")
+# dependencies=[Depends(get_current_user)] — это «охранник» у двери:
+# без входа в аккаунт сервер ответит ошибкой 401 и сюда даже не пустит.
+@app.get("/api/options", dependencies=[Depends(get_current_user)])
 def get_options() -> dict[str, object]:
     return recommender.get_options()
 
 
-@app.post("/api/recommendations", response_model=RecommendationResponse)
+# Тот же «охранник»: подбирать фильмы могут только вошедшие пользователи.
+@app.post(
+    "/api/recommendations",
+    response_model=RecommendationResponse,
+    dependencies=[Depends(get_current_user)],
+)
 def get_recommendations(
     request: RecommendationRequest,
 ) -> RecommendationResponse:

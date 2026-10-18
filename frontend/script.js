@@ -46,7 +46,10 @@ async function apiRequest(path, options = {}) {
   });
   const payload = await response.json();
   if (!response.ok) {
-    throw new Error(payload.detail || "Не удалось подобрать фильмы.");
+    const error = new Error(payload.detail || "Не удалось подобрать фильмы.");
+    // Запоминаем код ошибки сервера: 401 значит «ты не вошёл в аккаунт»
+    error.status = response.status;
+    throw error;
   }
   return payload;
 }
@@ -121,7 +124,11 @@ async function loadMovieOptions() {
     document.querySelector("#yearFrom").placeholder = options.year_min || "";
     document.querySelector("#yearTo").placeholder = options.year_max || "";
   } catch (error) {
-    showToast(`Не удалось загрузить варианты анкеты: ${error.message}`);
+    // 401 — человек ещё не вошёл. Это нормально: просто не показываем ошибку,
+    // списки в анкете появятся после входа.
+    if (error.status !== 401) {
+      showToast(`Не удалось загрузить варианты анкеты: ${error.message}`);
+    }
   }
 }
 
@@ -133,6 +140,11 @@ async function requestRecommendations(data) {
     });
     showRecommendations(payload);
   } catch (error) {
+    // 401 — вход не выполнен или сессия закончилась. Забываем старое имя,
+    // чтобы после обновления страницы кнопка снова показала «Регистрация».
+    if (error.status === 401) {
+      localStorage.removeItem("owlUser");
+    }
     addMessage(error.message, "owl");
   }
 }
@@ -231,8 +243,14 @@ const owlUser = localStorage.getItem("owlUser");
 if (registerBtn && owlUser) {
   registerBtn.lastChild.textContent = ` ${owlUser} · выйти`;
   registerBtn.href = "#";
-  registerBtn.addEventListener("click", (event) => {
+  registerBtn.addEventListener("click", async (event) => {
     event.preventDefault();
+    // Просим сервер удалить cookie с токеном — это и есть настоящий выход
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } catch (error) {
+      // Если сервер недоступен, всё равно выходим на этой странице
+    }
     localStorage.removeItem("owlUser");
     window.location.reload();
   });
