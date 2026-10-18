@@ -134,16 +134,16 @@ class OwlSimpleRecommender:
         if value is None or value == "":
             return None
         if isinstance(value, bool):
-            raise ValueError(f"Значение «{field}» должно быть годом.")
+            raise ValueError(f"Вась, ну блин, значение «{field}» должно быть годом.")
         try:
             year_number = float(value)
         except (TypeError, ValueError) as exc:
-            raise ValueError(f"Значение «{field}» должно быть годом.") from exc
+            raise ValueError(f"Ну ты че, братан, значение «{field}» должно быть годом.") from exc
         if not year_number.is_integer():
-            raise ValueError(f"Значение «{field}» должно быть целым годом.")
+            raise ValueError(f"Вась, ну ало, значение «{field}» должно быть целым годом.")
         year = int(year_number)
         if not 1888 <= year <= 2100:
-            raise ValueError(f"Год «{field}» должен быть от 1888 до 2100.")
+            raise ValueError(f"Вась, год «{field}» должен быть от 1888 до 2100.")
         return year
 
     @staticmethod
@@ -151,13 +151,13 @@ class OwlSimpleRecommender:
         if value is None or value == "":
             return None
         if isinstance(value, bool):
-            raise ValueError("Минимальный IMDb-рейтинг должен быть числом.")
+            raise ValueError("Васек, минимальный IMDb-рейтинг должен быть числом.")
         try:
             rating = float(value)
         except (TypeError, ValueError) as exc:
-            raise ValueError("Минимальный IMDb-рейтинг должен быть числом.") from exc
+            raise ValueError("Вась, минимальный IMDb-рейтинг должен быть числом.") from exc
         if not 0 <= rating <= 10:
-            raise ValueError("Минимальный IMDb-рейтинг должен быть от 0 до 10.")
+            raise ValueError("Да ну вась, минимальный IMDb-рейтинг должен быть от 0 до 10.")
         return rating
 
     @staticmethod
@@ -216,11 +216,6 @@ class OwlSimpleRecommender:
 
         if year_from is not None and year_to is not None and year_from > year_to:
             raise ValueError("Год начала не может быть больше года окончания.")
-        if country and not self.country_column:
-            raise ValueError(
-                "В CSV нет данных о стране производства, поэтому фильтр "
-                "по стране пока недоступен."
-            )
 
         genre_vector = self._encode_preference(
             genre, self.genre_mlb, "жанр"
@@ -229,10 +224,7 @@ class OwlSimpleRecommender:
             self._encode_preference(atmosphere, self.atmo_mlb, "вайб").astype(float)
             * 1.1
         )
-        country_vector = (
-            self._encode_preference(country, self.country_mlb, "страна").astype(float)
-            * 0.8
-        )
+
 
         mask = pd.Series(True, index=self.df.index)
         if genre:
@@ -243,11 +235,6 @@ class OwlSimpleRecommender:
         if atmosphere:
             mask &= self.df["atmosphere_list"].map(
                 lambda tags: atmosphere.casefold()
-                in {tag.casefold() for tag in tags}
-            )
-        if country:
-            mask &= self.df["country_list"].map(
-                lambda tags: country.casefold()
                 in {tag.casefold() for tag in tags}
             )
         if actor:
@@ -320,7 +307,6 @@ class OwlSimpleRecommender:
         reasons: list[str] = []
         genre = survey.get("genre")
         atmosphere = survey.get("atmosphere")
-        country = survey.get("country")
         actor = survey.get("actor")
         min_rating = survey.get("min_rating")
 
@@ -362,3 +348,6 @@ if __name__ == "__main__":
         "min_rating": rating_input or None,
     }
     print(recommender.recommend(survey, top_n=20).to_string(index=False))
+
+#раз ты тг не читаешь, напишу тут
+#купи трюфели пожалуйста

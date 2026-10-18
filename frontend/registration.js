@@ -36,7 +36,7 @@ form.addEventListener("submit", async (event) => {
     showNote("Аккаунт создан! Перенаправляю на вход…", true);
     setTimeout(() => { window.location.href = "login.html"; }, 900);
   } catch (error) {
-    showNote("Не удалось связаться с сервером. Он запущен?", false);
+    showNote("Не удалось связаться с сервером. Он запущен..?", false);
   } finally {
     button.disabled = false;
   }

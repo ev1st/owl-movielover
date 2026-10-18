@@ -47,7 +47,6 @@ async function apiRequest(path, options = {}) {
   const payload = await response.json();
   if (!response.ok) {
     const error = new Error(payload.detail || "Не удалось подобрать фильмы.");
-    // Запоминаем код ошибки сервера: 401 значит «ты не вошёл в аккаунт»
     error.status = response.status;
     throw error;
   }
@@ -124,8 +123,7 @@ async function loadMovieOptions() {
     document.querySelector("#yearFrom").placeholder = options.year_min || "";
     document.querySelector("#yearTo").placeholder = options.year_max || "";
   } catch (error) {
-    // 401 — человек ещё не вошёл. Это нормально: просто не показываем ошибку,
-    // списки в анкете появятся после входа.
+      /*тут ниче не покажет, надо чтоб зарегались сначала, будем выводить ошибку? потом*/
     if (error.status !== 401) {
       showToast(`Не удалось загрузить варианты анкеты: ${error.message}`);
     }
@@ -140,8 +138,6 @@ async function requestRecommendations(data) {
     });
     showRecommendations(payload);
   } catch (error) {
-    // 401 — вход не выполнен или сессия закончилась. Забываем старое имя,
-    // чтобы после обновления страницы кнопка снова показала «Регистрация».
     if (error.status === 401) {
       localStorage.removeItem("owlUser");
     }
@@ -237,7 +233,6 @@ document.querySelectorAll(".nav-item").forEach((button) => {
 
 loadMovieOptions();
 
-// Если пользователь вошёл (имя сохраняет login.js), показываем его вместо «Регистрация»
 const registerBtn = document.querySelector("#registerBtn");
 const owlUser = localStorage.getItem("owlUser");
 if (registerBtn && owlUser) {
@@ -245,11 +240,9 @@ if (registerBtn && owlUser) {
   registerBtn.href = "#";
   registerBtn.addEventListener("click", async (event) => {
     event.preventDefault();
-    // Просим сервер удалить cookie с токеном — это и есть настоящий выход
     try {
       await fetch("/api/logout", { method: "POST" });
     } catch (error) {
-      // Если сервер недоступен, всё равно выходим на этой странице
     }
     localStorage.removeItem("owlUser");
     window.location.reload();

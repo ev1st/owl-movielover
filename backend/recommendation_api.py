@@ -22,17 +22,16 @@ FRONTEND_DIR = PROJECT_ROOT / "frontend"
 CACHE_PATH = Path(__file__).resolve().parent / "translation_cache.json"
 app = FastAPI(title="Owl Movie Recommender")
 app.include_router(auth_router)
-Base.metadata.create_all(engine)  # создаёт таблицу users, если её ещё нет
-ensure_role_column()  # добавляет колонку role в старую таблицу users
+Base.metadata.create_all(engine)
+ensure_role_column()
 recommender = OwlSimpleRecommender()
 
-# ---------- TMDB: официальные русские названия и описания ----------
 TMDB_CACHE_PATH = Path(__file__).resolve().parent / "tmdb_cache.json"
-TMDB_TIMEOUT = 10  # секунд на все запросы к TMDB за один поиск
+TMDB_TIMEOUT = 10
 tmdb_pool = ThreadPoolExecutor(max_workers=8)
 
 
-TMDB_KEY = os.getenv("TMDB_API_KEY", "")  # .env уже прочитан в backend/db.py
+TMDB_KEY = os.getenv("TMDB_API_KEY", "")
 try:
     tmdb_cache: dict[str, dict[str, str]] = json.loads(TMDB_CACHE_PATH.read_text("utf-8"))
 except (OSError, ValueError):
@@ -40,7 +39,6 @@ except (OSError, ValueError):
 
 
 def _tmdb_russian(imdb_id: str) -> None:
-    """Кладёт в tmdb_cache русские название и описание фильма (по IMDb-коду)."""
     if not TMDB_KEY or imdb_id in tmdb_cache or not re.fullmatch(r"tt\d+", imdb_id):
         return
     url = f"https://api.themoviedb.org/3/find/{imdb_id}?external_source=imdb_id&language=ru-RU"
@@ -73,8 +71,7 @@ except (OSError, ValueError):
     translation_cache = {}
 
 
-def _to_russian(text: str) -> str:
-    """Переводит текст на русский. Результат кэшируется; при ошибке вернёт оригинал."""
+def _to_russian(text: str) -> str: #макс, почини это ради бога
     if not text or re.search("[а-яА-ЯёЁ]", text):
         return text
     if text in translation_cache:
@@ -256,14 +253,11 @@ def _infer_preferences(message: str) -> dict[str, object]:
     return preferences
 
 
-# dependencies=[Depends(get_current_user)] — это «охранник» у двери:
-# без входа в аккаунт сервер ответит ошибкой 401 и сюда даже не пустит.
 @app.get("/api/options", dependencies=[Depends(get_current_user)])
 def get_options() -> dict[str, object]:
     return recommender.get_options()
 
 
-# Тот же «охранник»: подбирать фильмы могут только вошедшие пользователи.
 @app.post(
     "/api/recommendations",
     response_model=RecommendationResponse,
@@ -296,7 +290,6 @@ def get_recommendations(
 
     rows = results.to_dict(orient="records")
 
-    # 1) TMDB: русские название и описание по IMDb-коду
     wait(
         [tmdb_pool.submit(_tmdb_russian, str(r["movie_id"])) for r in rows],
         timeout=TMDB_TIMEOUT,
@@ -338,7 +331,7 @@ def get_recommendations(
             )
         )
 
-    kolobok = MovieRecommendation(
+    kolobok = MovieRecommendation( #ЭТО НИ ЗА ЧТО НЕ УБИРАЙ!!!!! 
         movie_name="Последний богатырь. Колобок",
         year=2026,
         genres=["Animation", "Family"],

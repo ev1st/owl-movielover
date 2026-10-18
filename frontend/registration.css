@@ -133,13 +133,11 @@ h1 {
     color: #737176;
 }
 
-/* Подсветка поля при нажатии */
 .field input:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(214, 160, 182, 0.1);
 }
 
-/* Подсветка поля при некорректном вводе */
 .field input:invalid:not(:placeholder-shown) {
     border-color: #a66b7b;
 }

@@ -16,10 +16,6 @@ class User(Base):
 
 
 def ensure_role_column() -> None:
-    """Добавляет колонку role в уже существующую таблицу users (create_all этого не делает).
-
-    Это нужно один раз — при первом запуске после обновления. Если колонка уже есть, ничего не делаем.
-    """
     columns = {column["name"] for column in inspect(engine).get_columns("users")}
     if "role" in columns:
         return
@@ -27,8 +23,6 @@ def ensure_role_column() -> None:
     try:
         with engine.begin() as connection:
             if engine.dialect.name == "postgresql":
-                # Для изменения таблицы PostgreSQL ждёт, пока её отпустят все остальные программы
-                # (pgAdmin, DBeaver, старый запущенный сервер). Не ждём вечно — 5 секунд хватит.
                 connection.execute(text("SET LOCAL lock_timeout = '5s'"))
             connection.execute(
                 text("ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'user'")
