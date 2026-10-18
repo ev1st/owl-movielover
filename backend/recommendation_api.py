@@ -43,9 +43,9 @@ def _tmdb_russian(imdb_id: str) -> None:
         return
     url = f"https://api.themoviedb.org/3/find/{imdb_id}?external_source=imdb_id&language=ru-RU"
     headers = {"accept": "application/json"}
-    if TMDB_KEY.startswith("eyJ"):  # длинный «API Read Access Token»
+    if TMDB_KEY.startswith("eyJ"): 
         headers["Authorization"] = f"Bearer {TMDB_KEY}"
-    else:  # короткий «API Key»
+    else: 
         url += f"&api_key={TMDB_KEY}"
     try:
         request = urllib.request.Request(url, headers=headers)
@@ -61,10 +61,9 @@ def _tmdb_russian(imdb_id: str) -> None:
     }
 
 
-# ---------- запасной вариант: машинный перевод Google ----------
 blocked_until = 0.0
-TRANSLATE_TIMEOUT = 25  # секунд; поставь 0, чтобы выключить ожидание перевода
-translator_pool = ThreadPoolExecutor(max_workers=1)  # по одному запросу, иначе Google банит
+TRANSLATE_TIMEOUT = 25  
+translator_pool = ThreadPoolExecutor(max_workers=1)  
 
 try:
     translation_cache: dict[str, str] = json.loads(CACHE_PATH.read_text("utf-8"))
@@ -79,13 +78,13 @@ def _to_russian(text: str) -> str:
     if text in translation_cache:
         return translation_cache[text]
     global blocked_until
-    if time.time() < blocked_until:  # Google недавно ответил «слишком много запросов»
+    if time.time() < blocked_until:  
         return text
     try:
         from deep_translator import GoogleTranslator
 
         translated = GoogleTranslator(source="auto", target="ru").translate(text)
-        time.sleep(0.3)  # не больше ~3 запросов в секунду
+        time.sleep(0.3)  
     except Exception as exc:
         if type(exc).__name__ == "TooManyRequests":
             blocked_until = time.time() + 600
@@ -300,8 +299,6 @@ def get_recommendations(
         if info.get("overview"):
             row["description"] = recommender._short_description(info["overview"])
 
-    # 2) Чего нет на русском в TMDB — переводим Google (если не успел, покажем как есть,
-    #    а в фоне переведётся и при следующем запросе возьмётся из кэша)
     texts = [
         str(r[k]) for r in rows for k in ("movie_name", "description")
         if not re.search("[а-яА-ЯёЁ]", str(r[k]))
