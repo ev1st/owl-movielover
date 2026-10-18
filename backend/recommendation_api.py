@@ -1,4 +1,9 @@
+import json
+import os
 import re
+import time
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor, wait
 from pathlib import Path
 from typing import Any
 
@@ -7,15 +12,91 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-try:
-    from .owl_recomender import OwlSimpleRecommender
-except ImportError:  # pragma: no cover - supports running the module directly.
-    from owl_recomender import OwlSimpleRecommender
+from backend.auth import router as auth_router
+from backend.db import Base, engine
+from backend.owl_recomender import OwlSimpleRecommender
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = PROJECT_ROOT / "frontend"
+CACHE_PATH = Path(__file__).resolve().parent / "translation_cache.json"
 app = FastAPI(title="Owl Movie Recommender")
+app.include_router(auth_router)
+Base.metadata.create_all(engine)  # создаёт таблицу users, если её ещё нет
 recommender = OwlSimpleRecommender()
+
+# ---------- TMDB: официальные русские названия и описания ----------
+TMDB_CACHE_PATH = Path(__file__).resolve().parent / "tmdb_cache.json"
+TMDB_TIMEOUT = 10  # секунд на все запросы к TMDB за один поиск
+tmdb_pool = ThreadPoolExecutor(max_workers=8)
+
+
+TMDB_KEY = os.getenv("TMDB_API_KEY", "")  # .env уже прочитан в backend/db.py
+try:
+    tmdb_cache: dict[str, dict[str, str]] = json.loads(TMDB_CACHE_PATH.read_text("utf-8"))
+except (OSError, ValueError):
+    tmdb_cache = {}
+
+
+def _tmdb_russian(imdb_id: str) -> None:
+    """Кладёт в tmdb_cache русские название и описание фильма (по IMDb-коду)."""
+    if not TMDB_KEY or imdb_id in tmdb_cache or not re.fullmatch(r"tt\d+", imdb_id):
+        return
+    url = f"https://api.themoviedb.org/3/find/{imdb_id}?external_source=imdb_id&language=ru-RU"
+    headers = {"accept": "application/json"}
+    if TMDB_KEY.startswith("eyJ"):  # длинный «API Read Access Token»
+        headers["Authorization"] = f"Bearer {TMDB_KEY}"
+    else:  # короткий «API Key»
+        url += f"&api_key={TMDB_KEY}"
+    try:
+        request = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(request, timeout=6) as response:
+            data = json.load(response)
+    except Exception as exc:
+        print(f"[tmdb] {imdb_id}: {type(exc).__name__}: {exc}")
+        return
+    found = (data.get("movie_results") or [{}])[0]
+    tmdb_cache[imdb_id] = {
+        "title": found.get("title") or "",
+        "overview": found.get("overview") or "",
+    }
+
+
+# ---------- запасной вариант: машинный перевод Google ----------
+blocked_until = 0.0
+TRANSLATE_TIMEOUT = 25  # секунд; поставь 0, чтобы выключить ожидание перевода
+translator_pool = ThreadPoolExecutor(max_workers=1)  # по одному запросу, иначе Google банит
+
+try:
+    translation_cache: dict[str, str] = json.loads(CACHE_PATH.read_text("utf-8"))
+except (OSError, ValueError):
+    translation_cache = {}
+
+
+def _to_russian(text: str) -> str:
+    """Переводит текст на русский. Результат кэшируется; при ошибке вернёт оригинал."""
+    if not text or re.search("[а-яА-ЯёЁ]", text):
+        return text
+    if text in translation_cache:
+        return translation_cache[text]
+    global blocked_until
+    if time.time() < blocked_until:  # Google недавно ответил «слишком много запросов»
+        return text
+    try:
+        from deep_translator import GoogleTranslator
+
+        translated = GoogleTranslator(source="auto", target="ru").translate(text)
+        time.sleep(0.3)  # не больше ~3 запросов в секунду
+    except Exception as exc:
+        if type(exc).__name__ == "TooManyRequests":
+            blocked_until = time.time() + 600
+            print("[перевод] Google просит подождать, перевод отключён на 10 минут")
+        else:
+            print(f"[перевод] не получилось: {type(exc).__name__}: {exc}")
+        return text
+    if translated:
+        translation_cache[text] = translated
+        return translated
+    return text
 
 class RecommendationRequest(BaseModel):
     mode: str = "free_text"
@@ -205,8 +286,37 @@ def get_recommendations(
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
+    rows = results.to_dict(orient="records")
+
+    # 1) TMDB: русские название и описание по IMDb-коду
+    wait(
+        [tmdb_pool.submit(_tmdb_russian, str(r["movie_id"])) for r in rows],
+        timeout=TMDB_TIMEOUT,
+    )
+    for row in rows:
+        info = tmdb_cache.get(str(row["movie_id"]), {})
+        if info.get("title"):
+            row["movie_name"] = info["title"]
+        if info.get("overview"):
+            row["description"] = recommender._short_description(info["overview"])
+
+    # 2) Чего нет на русском в TMDB — переводим Google (если не успел, покажем как есть,
+    #    а в фоне переведётся и при следующем запросе возьмётся из кэша)
+    texts = [
+        str(r[k]) for r in rows for k in ("movie_name", "description")
+        if not re.search("[а-яА-ЯёЁ]", str(r[k]))
+    ]
+    wait([translator_pool.submit(_to_russian, t) for t in texts], timeout=TRANSLATE_TIMEOUT)
+    for path, cache in ((CACHE_PATH, translation_cache), (TMDB_CACHE_PATH, tmdb_cache)):
+        try:
+            path.write_text(json.dumps(cache, ensure_ascii=False), encoding="utf-8")
+        except (OSError, RuntimeError):
+            pass
+
     movies: list[MovieRecommendation] = []
-    for row in results.to_dict(orient="records"):
+    for row in rows:
+        row["movie_name"] = translation_cache.get(str(row["movie_name"]), row["movie_name"])
+        row["description"] = translation_cache.get(str(row["description"]), row["description"])
         year = None if pd.isna(row["year"]) else int(row["year"])
         movies.append(
             MovieRecommendation(

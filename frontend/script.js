@@ -224,3 +224,16 @@ document.querySelectorAll(".nav-item").forEach((button) => {
 });
 
 loadMovieOptions();
+
+// Если пользователь вошёл (имя сохраняет login.js), показываем его вместо «Регистрация»
+const registerBtn = document.querySelector("#registerBtn");
+const owlUser = localStorage.getItem("owlUser");
+if (registerBtn && owlUser) {
+  registerBtn.lastChild.textContent = ` ${owlUser} · выйти`;
+  registerBtn.href = "#";
+  registerBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    localStorage.removeItem("owlUser");
+    window.location.reload();
+  });
+}

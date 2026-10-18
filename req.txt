@@ -4,7 +4,7 @@ scikit-learn>=1.3
 fastapi>=0.110
 uvicorn[standard]>=0.29
 pydantic>=2.6
-jinja2>=3.1
-SQLAlchemy
-psycopg2-binary
+SQLAlchemy>=2.0
+psycopg2-binary>=2.9.11
+python-dotenv>=1.0
 deep-translator>=1.11.4

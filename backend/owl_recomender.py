@@ -6,17 +6,11 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import MultiLabelBinarizer
 
-import os
-
-
-def _project_root() -> Path:
-    return Path(os.getcwd())
-
-
-PROJECT_ROOT = _project_root()
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = PROJECT_ROOT / "database" / "movies_for_training.csv"
 COUNTRY_COLUMNS = ("country_str", "countries_str", "country", "countries")
 RESULT_COLUMNS = [
+    "movie_id",
     "movie_name",
     "year",
     "genres_str",
@@ -56,6 +50,7 @@ class OwlSimpleRecommender:
             None,
         )
         defaults = {
+            "movie_id": "",
             "genres_str": "",
             "atmosphere_str": "",
             "description": "",
